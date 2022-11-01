@@ -7,7 +7,10 @@ exports.createAppointment = (req, res, next) => {
   const status = "Pending";
   const userId = req.user.userId;
 
-  if (new Date(stTime).getHours() < 2 || new Date(stTime).getHours() > 14) {
+  if (
+    new Date(+req.body.stTime - 21600000).getHours() < 8 ||
+    new Date(+req.body.stTime - 21600000).getHours() > 20
+  ) {
     throw Error("Please select from 8:00am to 8:40pm");
   }
 
@@ -91,7 +94,6 @@ exports.filteredById = (req, res, next) => {
 exports.filteredByTime = (req, res, next) => {
   const stTime = +req.params.stTime + 21600000;
   const enTime = +req.params.enTime + 21600000;
-  console.log(stTime, enTime);
 
   Appointment.find({
     $and: [{ stTime: { $gte: stTime } }, { stTime: { $lte: enTime } }],
@@ -112,11 +114,27 @@ exports.filteredByStatus = (req, res, next) => {
 
 exports.changeScedule = (req, res, next) => {
   const _id = req.params.appointmentId;
-  const stTime = req.body.stTime;
+  const stTime = +req.body.stTime;
   const status = req.body.status;
   const enTime = stTime + 1200000;
 
-  Appointment.findById({ _id })
+  if (
+    new Date(+req.body.stTime - 21600000).getHours() < 8 ||
+    new Date(+req.body.stTime - 21600000).getHours() > 20
+  ) {
+    throw Error("Please select from 8:00am to 8:40pm");
+  }
+
+  Appointment.findOne({
+    $and: [{ stTime: { $lte: stTime } }, { enTime: { $gte: stTime } }],
+  })
+    .then((appoint) => {
+      if (appoint) {
+        throw Error("Time conflicts");
+      } else {
+        return Appointment.findById({ _id });
+      }
+    })
     .then((appointment) => {
       appointment.stTime = stTime === null ? appointment.stTime : stTime;
       appointment.enTime = stTime === null ? appointment.enTime : enTime;
