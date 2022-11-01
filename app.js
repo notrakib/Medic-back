@@ -28,6 +28,6 @@ app.use((error, req, res, next) => {
 
 mongoose
   .connect("mongodb+srv://rakib:rakib@cluster0.f4fx5.mongodb.net/appointment")
-  // .then(() => app.listen(process.env.PORT || 3000))
-  .then(() => app.listen(8080))
+  .then(() => app.listen(process.env.PORT || 8080))
+  // .then(() => app.listen(8080))
   .catch((err) => console.log(err));
