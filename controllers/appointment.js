@@ -114,13 +114,13 @@ exports.filteredByStatus = (req, res, next) => {
 
 exports.changeScedule = (req, res, next) => {
   const _id = req.params.appointmentId;
-  const stTime = +req.body.stTime;
+  const stTime = req.body.stTime;
   const status = req.body.status;
   const enTime = stTime + 1200000;
 
   if (
-    new Date(+req.body.stTime - 21600000).getHours() < 8 ||
-    new Date(+req.body.stTime - 21600000).getHours() > 20
+    (new Date(+req.body.stTime - 21600000).getHours() < 8 && stTime != null) ||
+    (new Date(+req.body.stTime - 21600000).getHours() > 20 && enTime != null)
   ) {
     throw Error("Please select from 8:00am to 8:40pm");
   }
